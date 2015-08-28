@@ -1,7 +1,7 @@
 {
   "name": "benice",
   "version": "1.0.0",
-  "description": "Be nice to your hosting page, run \"onIdle\"",
+  "description": "Be nice to host, run \"onIdle\"",
   "main": "benice.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -18,7 +18,11 @@
     "timer"
   ],
   "author": "Tal Weinfeld",
-  "license": "ISC",
+  "license": "MIT",
+  "repository": {
+      "type": "git",
+      "url": "https://github.com/tweinfeld/benice.git"
+  },
   "devDependencies": {
     "gulp": "^3.9.0",
     "gulp-concat": "^2.6.0",
