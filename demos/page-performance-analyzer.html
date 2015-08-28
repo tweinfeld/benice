@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>benice.js : Page Performance Analyzer</title>
+    <script type="application/javascript" src="../benice-min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bacon.js/0.7.71/Bacon.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0-alpha1/jquery.min.js"></script>
+    <style>
+        html, body {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        section.meter {
+            background-color: #eee;
+            flex: 0 0 100px;
+            transition: background-color 0.1s;
+        }
+
+        section.meter.exceed {
+            background-color: red;
+        }
+
+        section.meter.exceed path, section.meter.exceed line {
+            stroke: white;
+        }
+
+        section.meter.exceed text {
+            fill: white;
+        }
+
+        section.address-bar {
+            flex: 0 0 50px;
+        }
+
+        section.address-bar input {
+            display: block;
+            width: 100%;
+            line-height: 50px;
+            height: 50px;
+            font-family: Arial;
+            font-size: 35px;
+            padding: 0 20px;
+            border: none;
+            box-sizing(border-box);
+            color: #eee;
+            background-color: #2483b3;
+        }
+
+        section.address-bar input:focus {
+            outline: none;
+        }
+
+        iframe {
+            flex: 1 0 100px;
+            box-sizing(border-box);
+            width: 100%;
+            margin: 0;
+            border: 0;
+        }
+        .monitor {
+            box-sizing(border-box);
+            display: block;
+            width: 100%;
+            height: 100px;
+        }
+        .monitor text {
+            font-family: arial;
+            font-size: 11px;
+            fill: #aaa;
+        }
+        .monitor path, .monitor line {
+            fill: none;
+            stroke: #aaa;
+            stroke-width: 1.5;
+            shape-rendering: geometricPrecision;
+        }
+    </style>
+</head>
+<body>
+    <section class="meter"></section>
+    <section class="address-bar"><input type="text" value="http://www.cnn.com/"/></section>
+    <iframe></iframe>
+<script>
+
+    Benice.onIdle(function(){
+
+        var svg = d3.select('section.meter').append('svg').classed('monitor', true),
+            yAxisContainer = svg.append('g').classed('yAxis', true),
+            trendLine = svg.append('g').classed('trendline', true).append('path').attr('fill', 'none');
+
+        Bacon
+            .fromBinder(Benice.Monitor)
+            .map(function(sampleValue){ return { timestamp: new Date(), value: Math.abs(sampleValue) } })
+            .slidingWindow(100)
+            .sampledBy(Bacon.fromBinder(function frameIterator(sink){ requestAnimationFrame(_.flow(sink, frameIterator.bind(undefined, sink))); }))
+            .onValue(function(buffer){
+
+                var from = d3.time.second.offset(new Date(), -10),
+                    containerWidth = svg.node().getBoundingClientRect().width;
+
+                buffer = _(buffer).takeRight(buffer.length - _.sortedIndex(_(buffer).pluck('timestamp').value(), from)+1).value();
+
+                var scaleX = d3.scale.linear().domain([from, new Date()]).range([0, containerWidth]),
+                    scaleY = d3.scale.linear().domain([0, d3.max(_.pluck(buffer, 'value'))]).range([95,5]);
+
+                yAxisContainer
+                    .call(
+                        d3
+                            .svg
+                            .axis()
+                            .ticks(5)
+                            .orient('right')
+                            .tickFormat(d3.format(",.0f"))
+                            .scale(scaleY)
+                    )
+                    .attr('transform', _.template('translate(<%-x%>)')({ x: containerWidth - yAxisContainer.node().getBBox().width - 5 }))
+
+                var line = d3
+                    .svg
+                    .line()
+                    .x(_.flow(_.property('timestamp'), scaleX))
+                    .y(_.flow(_.property('value'), scaleY))
+                    .interpolate('line');
+
+                trendLine
+                    .attr('transform', null)
+                    .attr('d', line(buffer));
+
+                $('section.meter').toggleClass('exceed', d3.max(_(buffer).takeRight(5).pluck('value').value()) > 100);
+            });
+
+        var $input = $('input').focus(),
+            $val = $input.val.bind($input);
+
+        Bacon
+            .fromEvent($input, 'keydown')
+            .filter(_.matches({ which: 13 }))
+            .merge(Bacon.later(500))
+            .map(_.ary($val, 0))
+            .filter(Boolean)
+            .map(function(url) {
+                var reg = /http[s]?:\/\//;
+                return [url.match(reg) || "http://"].concat(_(url.split(reg)).compact().value()).join('');
+            })
+            .skipDuplicates()
+            .doAction($val)
+            .assign($('iframe'), 'attr', 'src');
+    });
+</script>
+</body>
+</html>
