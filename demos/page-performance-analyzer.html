@@ -16,14 +16,11 @@
         }
 
         body {
-            display: flex;
-            flex-direction: column;
-            align-items: stretch;
+            overflow: hidden;
         }
 
         section.meter {
             background-color: #eee;
-            flex: 0 0 100px;
             transition: background-color 0.1s;
         }
 
@@ -40,7 +37,7 @@
         }
 
         section.address-bar {
-            flex: 0 0 50px;
+            height: 50px;
         }
 
         section.address-bar input {
@@ -62,10 +59,12 @@
         }
 
         iframe {
-            flex: 1 0 100px;
-            box-sizing(border-box);
-            width: 100%;
+            top: 0;
+            left: 0;
             margin: 0;
+            padding: 0;
+            height: calc(100% - 150px);
+            width: 100%;
             border: 0;
         }
         .monitor {
@@ -92,7 +91,6 @@
     <section class="address-bar"><input type="text" value="http://www.cnn.com/"/></section>
     <iframe></iframe>
 <script>
-
     Benice.onIdle(function(){
 
         var svg = d3.select('section.meter').append('svg').classed('monitor', true),
