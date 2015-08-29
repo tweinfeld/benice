@@ -1,6 +1,6 @@
 {
   "name": "benice",
-  "version": "1.0.0",
+  "version": "1.0.3",
   "description": "Be nice to host, run \"onIdle\"",
   "main": "benice.js",
   "scripts": {
