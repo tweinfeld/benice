@@ -64,5 +64,5 @@ stopMonitoring();
 
 ## Examples
 
-![Page performance analyzer](https://raw.githubusercontent.com/tweinfeld/benice/master/demos/page-performance-analyzer.gif)
+![Page performance analyzer](https://raw.githubusercontent.com/tweinfeld/benice/master/demos/page-performance-analyzer.gif)  
 [Page performance analyzer](http://benice.webwise.co.il)
