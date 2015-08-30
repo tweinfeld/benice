@@ -1,5 +1,5 @@
 # Benice - Be nice to your host!
-Benice is a tiny set of browser performance estimation tools inspired by [Dan Kaminsky's simple & genius "nice.js"](https://www.youtube.com/watch?v=9wx2TnaRSGs). It enables you to "be nice" to your surrounding hosting environment by running your non-essencial logic only when the browser is estimated idle enough to handle it gracefully, thus reducing "hogging" resources, and slowing down fellow scripts.  
+Benice is a tiny set of browser performance estimation tools inspired by [Dan Kaminsky's simple & genius "nice.js"](https://www.youtube.com/watch?v=9wx2TnaRSGs). It enables you to "be nice" to your surrounding hosting environment by running your non-essencial logic only when the browser is estimated idle enough to handle it gracefully, thus prevents "hogging" resources, and slowing down fellow scripts.  
 Benice also includes a rudimentary "Monitor" function that reports periodic estimations regarding how "idle" the browser is.
 
 ## Installation
